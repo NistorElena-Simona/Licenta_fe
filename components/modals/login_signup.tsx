@@ -31,6 +31,22 @@ const formSchema = z.object({
     .regex(/[\W_]/, "Must contain at least one special character (!@#$%^&*)"),
 });
 
+
+
+const signUpSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters")
+    .regex(/[a-z]/, "Must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Must contain at least one number")
+    .regex(/[\W_]/, "Must contain at least one special character (!@#$%^&*)"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 export default function AuthModal({
   isOpen,
   onOpenChange,
@@ -41,7 +57,7 @@ export default function AuthModal({
   const [isSignUp, setIsSignUp] = useState(false);
   const [errors, setErrors] = useState<Partial<SignUpFormData>>({});
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<SignUpFormData>({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
@@ -65,23 +81,27 @@ export default function AuthModal({
     setLoading(true);
     console.log("🟢 handleSubmit called!"); 
     try {
-      formSchema.parse(formData);
-
+      const schemaToUse = isSignUp ? signUpSchema : loginSchema;
+      console.log("🔎 Current formData:", formData);
+      schemaToUse.parse(formData);
+      //formSchema.parse(formData);
       const url = isSignUp
         ? "http://localhost:3000/user/register"
         : "http://localhost:3000/auth/login";
 
+    
+      const body = isSignUp
+      ? { name: formData.name, email: formData.email, password: formData.password }
+      : { email: formData.email, password: formData.password };
+
+      console.log("📤 Sending payload to BE:", JSON.stringify(body, null, 2));
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const body = isSignUp
-      ? { name: formData.name, email: formData.email, password: formData.password }
-      : { email: formData.email, password: formData.password };
-
-    // 🛠 Log înainte de trimiterea datelor
-    console.log("📤 Sending payload to BE:", JSON.stringify(body, null, 2));
+    
+    
 
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -97,10 +117,14 @@ export default function AuthModal({
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
         toast.success("Logged in successfully!");
-        setTimeout(onOpenChange, 1000); 
+        //setTimeout(onOpenChange(), 1000); 
+        //onOpenChange();
       }
 
-      onOpenChange();
+      setTimeout(() => {
+        onOpenChange();
+      }, 500);
+      
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Partial<SignUpFormData> = {};
