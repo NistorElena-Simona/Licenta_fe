@@ -8,89 +8,87 @@ import {
   Link
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
-//import { Link } from "@nextui-org/link";
-import NextLink from "next/link";
-import { useState } from "react";
-import AuthModal from "../modals/login_signup"; // asigură-te că este corect importat
+import { useEffect, useState } from "react";
+import AuthModal from "../modals/login_signup"; // Asigură-te că este corect importat
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Input, Kbd } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import { SearchIcon } from "@/components/icons";
-import { siteConfig } from "@/config/site";
-import { link as linkStyles } from "@nextui-org/theme";
-import clsx from "clsx";
-import { FaCog } from 'react-icons/fa';
+import { FaCog } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext"; // Importă contextul de autentificare
+import { useSearchParams } from "next/navigation";
 
 export const Navbar = () => {
+  const { isAuthenticated, setIsAuthenticated, openAuthModal } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const toggleModal = () => setIsModalOpen((prev) => !prev);
+  const searchParams = useSearchParams();
 
-  const handleLoginClick = () => {
-    setIsModalOpen(true);
+  useEffect(() => {
+    // Verifică dacă există un token în localStorage
+    const token = localStorage.getItem("accessToken");
+    setIsAuthenticated(!!token);
+
+    // Dacă URL-ul conține auth=true, deschide automat modalul
+    if (searchParams.get("auth") === "true") {
+      openAuthModal();
+    }
+  }, [searchParams, setIsAuthenticated, openAuthModal]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setIsAuthenticated(false);
   };
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-black text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
 
   return (
     <NextUINavbar maxWidth="2xl" position="sticky" height="10vh">
-    <NavbarContent justify="start">
-      <NavbarBrand>
-        <Link href="/" className="font-bold text-2xl text-indigo-600 hover:text-indigo-800 ">
-          Fitness-App
-        </Link>
-      </NavbarBrand>
-    </NavbarContent>
-
-    
-        {/* Link către pagina About */}
-        <NavbarItem>
-          <Link href="/pages/about" className="text-indigo-600 text-2xl hover:text-indigo-800">
-            About
+      <NavbarContent justify="start">
+        <NavbarBrand>
+          <Link href="/" className="font-bold text-2xl text-indigo-600 hover:text-indigo-800">
+            Fitness-App
           </Link>
-        </NavbarItem>
+        </NavbarBrand>
+      </NavbarContent>
 
-        <NavbarItem>
-          <Link href="/pages/muscles" className="text-indigo-600 text-2xl hover:text-indigo-800">
-            Muscles
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800">
-            Pricing
-          </Link>
-        </NavbarItem>
-
-    <NavbarContent justify="end" className="flex items-center gap-4">
-      <Input
-        aria-label="Search"
-        className="bg-default-100"
-        placeholder="Search..."
-        type="search"
-      />
-      
-      <ThemeSwitch />
-
-      {/* Butonul de Login */}
       <NavbarItem>
-        <Button
-          variant="flat"
-          onClick={handleLoginClick}
-        >
-          Login
-        </Button>
+        <Link href="/pages/about" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          About
+        </Link>
       </NavbarItem>
+      <NavbarItem>
+        <Link href="/pages/muscles" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          Muscles
+        </Link>
+      </NavbarItem>
+      <NavbarItem>
+        <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          Pricing
+        </Link>
+      </NavbarItem>
+
+      <NavbarContent justify="end" className="flex items-center gap-4">
+        <Input
+          aria-label="Search"
+          className="bg-default-100"
+          placeholder="Search..."
+          type="search"
+          startContent={
+            <SearchIcon className="text-base text-black text-default-400 pointer-events-none flex-shrink-0" />
+          }
+        />
+        <ThemeSwitch />
+
+        <NavbarItem>
+          {!isAuthenticated  ? (
+            <Button variant="flat" onClick={() => setIsModalOpen(true)}>
+              Login
+            </Button>
+          ) : (
+            <Button variant="flat" onClick={handleLogout}>
+              Logout
+            </Button>
+          )}
+        </NavbarItem>
+
         <NavbarItem>
           <Link href="/pages/settings">
             <FaCog className="text-default-600" />
@@ -98,7 +96,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      {isModalOpen && <AuthModal isOpen={isModalOpen} onOpenChange={toggleModal} />}
+      {isModalOpen && <AuthModal isOpen={isModalOpen} onOpenChange={() => setIsModalOpen(false)} />}
     </NextUINavbar>
   );
 };

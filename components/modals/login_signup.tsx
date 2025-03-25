@@ -117,8 +117,7 @@ export default function AuthModal({
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
         toast.success("Logged in successfully!");
-        //setTimeout(onOpenChange(), 1000); 
-        //onOpenChange();
+        
       }
 
       setTimeout(() => {
