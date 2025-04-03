@@ -20,14 +20,13 @@ export default function Home() {
       <div className="mt-8">
         <Modal isOpen={isModalOpen} onOpenChange={onOpenChange} onClose={closeModal}>
           <ModalContent>
-            {onClose => (
+            
               <>
                 <ModalHeader className="mb-4">Login</ModalHeader>
                 <ModalBody>
                 </ModalBody>
                 <ModalFooter />
               </>
-            )}
           </ModalContent>
         </Modal>
       </div>

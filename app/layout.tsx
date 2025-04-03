@@ -10,7 +10,7 @@ import { Navbar } from "../components/navbar/navbar";
 //import Footer from "./components/footer/footer";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
-//import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "../components/context/AuthContext";
 import { ModalProvider } from "../components/context/ModalContext";
 //import AuthModal from "./components/modals/login_signup";
 import AuthModal from "../components/modals/login_signup";
@@ -28,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <AuthProvider>
         <NextUI>
           <NextThemesProvider attribute="class" defaultTheme="light">
             <SessionProvider>
@@ -45,7 +46,9 @@ export default function RootLayout({
             </SessionProvider>
           </NextThemesProvider>
         </NextUI>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+

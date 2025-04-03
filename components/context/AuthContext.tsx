@@ -1,31 +1,156 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import AuthModal from "../modals/login_signup";
+'use client';
 
-const AuthContext = createContext({
-    isAuthenticated: false,
-    setIsAuthenticated: (value: boolean) => {},
-    openAuthModal: () => {},
-  });
-  
-  export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  
-    useEffect(() => {
-      const token = localStorage.getItem("accessToken");
-      setIsAuthenticated(!!token);
-    }, []);
-  
-    const openAuthModal = () => setIsAuthModalOpen(true);
-  
-    return (
-      <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, openAuthModal }}>
-        {children}
-        {isAuthModalOpen && <AuthModal isOpen={isAuthModalOpen} onOpenChange={() => setIsAuthModalOpen(false)} />}
-      </AuthContext.Provider>
-    );
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { LoginCredentials, RegisterCredentials, User } from '@/types/auth';
+import { getMe, login, logout, refreshToken, register } from '@/app/services/AuthService';
+
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<void>;
+  logout: () => Promise<void>;
+  error: string | null;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true);
+        let accessToken = null;      
+        if (typeof window !== 'undefined') {
+          accessToken = localStorage.getItem('accessToken');
+        }
+        
+        if (accessToken) {
+          const userData = await getMe();
+          setUser(userData);
+        }
+      } catch (error) {
+        try {
+          if (typeof window !== 'undefined') {
+            const refreshTokenValue = localStorage.getItem('refreshToken');
+            if (refreshTokenValue) {
+              await handleRefreshToken(refreshTokenValue);
+            }
+          }
+        } catch (refreshError) {
+          
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+          }
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuthStatus();
+  }, []);
+
+  const handleRefreshToken = async (refreshTokenValue: string) => {
+    try {
+      const tokens = await refreshToken(refreshTokenValue);
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+      
+      const userData = await getMe();
+      setUser(userData);
+      return tokens;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleLogin = async (credentials: LoginCredentials) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const tokens = await login(credentials);
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+      
+      const userData = await getMe();
+      setUser(userData);
+    } catch (error: any) {
+      setError(error.message || 'Failed to login');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (credentials: RegisterCredentials) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await register(credentials);
+    
+      if (response.status === 201) {
+        router.push('/pages/verification');
+      }
+
+    } catch (error: any) {
+      setError(error.message || 'Failed to register');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      const refreshTokenValue = localStorage.getItem('refreshToken');
+      
+      if (refreshTokenValue) {
+        await logout(refreshTokenValue);
+      }
+      
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
+      
+      router.push('/');
+    } catch (error: any) {
+      setError(error.message || 'Failed to logout');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const value = {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    login: handleLogin,
+    register: handleRegister,
+    logout: handleLogout,
+    error
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  
-  export function useAuth() {
-    return useContext(AuthContext);
-  }
+  return context;
+}
