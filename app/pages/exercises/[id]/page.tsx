@@ -1,93 +1,31 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
-// import { useAuth } from "@/components/context/AuthContext";
-// import { getExercisesByMuscleId } from "@/app/services/ExercisesService";
-// import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-
-// function ExercisesPage() {
-//   const { isLoading, isAuthenticated } = useAuth();
-//   const searchParams = useSearchParams();
-//   const [exercises, setExercises] = useState<any[]>([]);
-//   const muscleId = Number(searchParams.get("muscleId"));
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     if (!isLoading && !isAuthenticated) {
-//       router.push('/?from=/pages/exercises');
-//     }
-//   }, [isLoading, isAuthenticated]);
-
-//   useEffect(() => {
-//     const fetchExercises = async () => {
-//       if (muscleId) {
-//         try {
-//           const data = await getExercisesByMuscleId(muscleId);
-//           setExercises(data);
-//         } catch (error) {
-//           console.error('Error fetching exercises:', error);
-//         }
-//       }
-//     };
-
-//     fetchExercises();
-//   }, [muscleId]);
-
-//   if (isLoading) {
-//     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-//   }
-
-//   if (!isAuthenticated) {
-//     return null; 
-//   }
-
-//   return (
-//     <div className="container mx-auto px-4 py-12">
-//       <h2 className="text-4xl font-bold mb-6">Exercises for Muscle ID: {muscleId}</h2>
-//       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-//         {exercises.map((exercise) => (
-//           <Card key={exercise.id} className="flex flex-col items-center">
-//             <CardHeader>
-//               <h3 className="text-2xl font-semibold mb-2">{exercise.name}</h3>
-//             </CardHeader>
-//             <CardContent>
-//               <p className="text-gray-600 text-sm">{exercise.description}</p>
-//             </CardContent>
-//             <CardFooter>
-//               <p className="text-foreground text-sm">Difficulty: {exercise.difficulty}</p>
-//             </CardFooter>
-//           </Card>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ExercisesPage;
+"use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getExercisesByMuscleId } from "@/app/services/ExercisesService";
 
 interface Exercise {
   id: number;
   name: string;
-  description?: string; // Opțional
-  imageUrl?: string; // Opțional
+  description?: string;
+  imageUrl?: string;
   muscleId: number;
 }
 
 function ExercisesPage() {
-  const searchParams = useSearchParams();
-  const muscleId = Number(searchParams.get("muscleId"));
+  const params = useParams();
+  const muscleId = Number(params.id);
   const [exercises, setExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {
     const fetchExercises = async () => {
       if (muscleId) {
-        const data = await getExercisesByMuscleId(muscleId);
-        setExercises(data);
+        try {
+          const data = await getExercisesByMuscleId(muscleId);
+          setExercises(data);
+        } catch (error) {
+          console.error('Error fetching exercises:', error);
+        }
       }
     };
 
@@ -95,13 +33,18 @@ function ExercisesPage() {
   }, [muscleId]);
 
   return (
-    <div>
-      <h1>Exercises for Muscle ID: {muscleId}</h1>
-      <ul>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Exerciții pentru mușchiul {muscleId}</h1>
+      <div className="flex flex-col gap-4">
         {exercises.map((exercise) => (
-          <li key={exercise.id}>{exercise.name}</li>
+          <div key={exercise.id} className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-xl font-semibold">{exercise.name}</h2>
+            {exercise.description && (
+              <p className="text-gray-600 mt-2">{exercise.description}</p>
+            )}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

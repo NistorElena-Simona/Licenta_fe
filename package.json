@@ -21,6 +21,8 @@
 		"@nextui-org/switch": "2.0.34",
 		"@nextui-org/system": "2.2.6",
 		"@nextui-org/theme": "2.2.11",
+		"@radix-ui/react-dialog": "^1.1.6",
+		"@radix-ui/react-slot": "^1.1.2",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",
 		"@react-three/drei": "^9.114.6",

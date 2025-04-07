@@ -61,7 +61,7 @@ function MusclesPage() {
           <Card 
             key={muscle.id} 
             className="flex flex-col items-center cursor-pointer" 
-            onClick={() => router.push(`/exercises?muscleId=${muscle.id}`)}
+            onClick={() => router.push(`/exercises/${muscle.id}`)}
           >
             <CardHeader>
               <div className="h-48 w-48 relative overflow-hidden rounded-xl">
