@@ -79,7 +79,7 @@ export const Navbar = () => {
         {userAuthenticated && (
         <NavbarItem>
           <Link
-            href='/pages/muscles'
+            href='/muscles'
             className='text-indigo-600 text-2xl hover:text-indigo-800'
           >
             Muscles
