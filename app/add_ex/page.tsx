@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import toast from "react-hot-toast";
+import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
 interface Muscle {
@@ -33,6 +33,7 @@ const exerciseSchema = z.object({
 export default function AddExercisePage() {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [muscles, setMuscles] = useState<Muscle[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -54,13 +55,17 @@ export default function AddExercisePage() {
           const data = await getMuscles();
           setMuscles(data);
         } catch (error) {
-          toast.error("Cannot load muscles from database.");
+          toast({
+            variant: "destructive",
+            title: "Eroare",
+            description: "Nu s-au putut încărca mușchii din baza de date",
+          });
         }
       };
 
       fetchMuscles();
     }
-  }, [isLoading, isAuthenticated, isAdmin, router]);
+  }, [isLoading, isAuthenticated, isAdmin, router, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +77,11 @@ export default function AddExercisePage() {
       result.error.errors.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0]] = err.message;
-          toast.error(err.message);
+          toast({
+            variant: "destructive",
+            title: "Eroare",
+            description: err.message,
+          });
         }
       });
       setFormErrors(errors);
@@ -80,25 +89,27 @@ export default function AddExercisePage() {
     }
     setFormErrors({});
 
-    const loadingToast = toast.loading("Adding exercise...");
     try {
-      const response = await fetch("http://localhost:3000/exercises", {
+      const res = await fetch("http://localhost:3000/exercises", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          muscleId: parseInt(formData.muscleId),
-        }),
+          muscleId: parseInt(formData.muscleId)
+        })
       });
-      if (!response.ok) {
-        throw new Error("Failed to add exercise");
-      }
-      toast.success("Exercise added successfully!", { id: loadingToast });
-      router.push(`/exercises/${formData.muscleId}`);
-    } catch (error) {
-      toast.error("Failed to add exercise", { id: loadingToast });
+      if (!res.ok) throw new Error("Failed to add exercise");
+      toast({
+        title: "Succes",
+        description: "Exercițiul a fost adăugat cu succes!",
+      });
+      router.push("/muscles");
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: err.message || "Nu s-a putut adăuga exercițiul",
+      });
     }
   };
 

@@ -5,14 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { getExercisesByMuscleId } from "@/app/services/ExercisesService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, ArrowLeft } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ArrowLeft, Edit, Trash } from "lucide-react";
 import axios from "axios";
+import { useAuth } from "@/components/context/AuthContext";
+
 
 interface Exercise {
   id: number;
@@ -33,7 +29,7 @@ export default function ExercisesClient() {
   const muscleId = Number(params.id);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [muscle, setMuscle] = useState<Muscle | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,34 +76,45 @@ export default function ExercisesClient() {
                     {exercise.name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent >
                   {exercise.imageUrl && (
                     <div className="mb-4 relative">
-                      {exercise.imageUrl.includes('youtube.com') ? (
-                        <>
-                          <img
-                            src={`https://img.youtube.com/vi/${exercise.imageUrl.split('v=')[1]}/hqdefault.jpg`}
-                            alt={exercise.name}
-                            className="w-full h-32 object-cover rounded-lg"
-                          />
-                          <Button
-                            onClick={() => exercise.imageUrl && setSelectedVideo(exercise.imageUrl)}
-                            className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-black/50 hover:bg-black/70"
-                          >
-                            <Play className="w-8 h-8 text-white" />
-                          </Button>
-                        </>
-                      ) : (
-                        <img
-                          src={exercise.imageUrl}
-                          alt={exercise.name}
-                          className="w-full h-32 object-contain rounded-lg bg-gray-100"
-                        />
-                      )}
+                      <img
+                        src={exercise.imageUrl}
+                        alt={exercise.name}
+                        className="w-full h-32 object-contain rounded-lg bg-gray-100"
+                      />
                     </div>
                   )}
                   {exercise.description && (
-                    <p className="text-gray-600">{exercise.description}</p>
+                    <p className="text-gray-600 min-h-[48px]">{exercise.description}</p>
+                  )}
+                  {isAdmin && (
+                    <div className="flex justify-between mt-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-blue-600 hover:text-blue-700 "
+                        onClick={() => router.push(`/exercise/${exercise.id}`)}
+                        aria-label="Edit"
+                      >
+                        <Edit className="w-6 h-6"/>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={async () => {
+                          if (window.confirm("Are you sure you want to delete this exercise?")) {
+                            await fetch(`http://localhost:3000/exercises/${exercise.id}`, { method: "DELETE" });
+                            setExercises(exercises.filter(ex => ex.id !== exercise.id));
+                          }
+                        }}
+                        aria-label="Delete"
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -115,22 +122,6 @@ export default function ExercisesClient() {
           </div>
         </div>
       </div>
-
-      <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Video</DialogTitle>
-          </DialogHeader>
-          {selectedVideo && (
-            <iframe
-              src={selectedVideo.replace('watch?v=', 'embed/')}
-              className="w-full aspect-video rounded-lg"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 } 

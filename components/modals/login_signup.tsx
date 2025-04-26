@@ -17,6 +17,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 
 export interface SignUpFormData {
@@ -55,6 +56,7 @@ export default function AuthModal({
     email: "",
     password: "",
   });
+  const { toast } = useToast();
  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,10 +87,18 @@ export default function AuthModal({
   
       if (isSignUp) {
         await register({ name, email, password });
-        toast.success("Account created successfully! Check your email.");
+        toast({
+          title: "Succes",
+          description: "Account created successfully! Check your email.",
+        });
+        //toast.success("Account created successfully! Check your email.");
       } else {
         await login({ email, password });
-        toast.success("Logged in successfully!");
+        toast({
+          title: "Succes",
+          description: "Logged in successfully!",
+        });
+        //toast.success("Logged in successfully!");
         setTimeout(onOpenChange, 1000);
         router.push(from);
 
@@ -101,7 +111,11 @@ export default function AuthModal({
         });
         setErrors(fieldErrors);
       } else {
-        toast.error(error.message || "Something went wrong");
+        toast({
+          title: "Error",
+          description:  "Something went wrong",
+        });
+        //toast.error(error.message || "Something went wrong");
       }
     } finally {
       setLoading(false);

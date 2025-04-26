@@ -2,10 +2,13 @@
 import { Vector3 } from "three";
 import { useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree, ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html, Line } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Mesh, Group } from "three";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
 
 interface HotspotProps {
     position: Vector3 | [number, number, number];
@@ -84,10 +87,33 @@ function MeshComponent() {
   const gltf = useLoader(GLTFLoader, fileUrl);
   const modelRef = useRef<Group>();
   const { camera, scene } = useThree();
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
-  const handleClick = (event: ThreeEvent<MouseEvent>) => {
-    event.stopPropagation();
-    console.log('Click position:', event.point);
+  const points: { pos: [number, number, number]; label: string; muscleId: number }[] = [
+    { pos: [-0.6, 0.9, 0], label: "Shoulders", muscleId: 8 },
+    { pos: [-0.3, 0.7, 0.3], label: "Chest", muscleId: 5 },
+    { pos: [0.7, 0.3, -0.06], label: "Biceps", muscleId: 3 },
+    { pos: [-0.9, -0.3, -0.06], label: "Forearms", muscleId: 6 },
+    { pos: [-0.2, -0.2, 0.26], label: "Abs", muscleId: 1 },
+    { pos: [-0.4, -1, 0.2], label: "Legs", muscleId: 7 },
+    { pos: [-0.35, -2.2, -0.45], label: "Calf", muscleId: 4 },
+    { pos: [0.6, 0.5, -0.48], label: "Triceps", muscleId: 9 },
+    { pos: [-0.3, 0.3, -0.47], label: "Back", muscleId: 2 },
+  ];
+
+  const handleClick = (muscleId: number) => {
+    if (isAuthenticated) {
+      router.push(`/exercises/${muscleId}`);
+    } else {
+      toast({
+        title: "Autentificare necesară",
+        description: "Pentru a vedea detaliile exercițiilor, vă rugăm să vă conectați în aplicație.",
+        variant: "destructive",
+      });
+    }
   };
 
   return(
@@ -97,17 +123,27 @@ function MeshComponent() {
         object={gltf.scene} 
         scale={200} 
         position={[0, 0, 0]} 
-        onClick={handleClick}
       />
-      <Hotspot position={[-0.6, 0.8, 0.2]} label="Shoulders" muscleId={8} />
-      <Hotspot position={[-0.3, 0.7, 0.3]} label="Chest" muscleId={5} />
-      <Hotspot position={[0.6, 0.2, 0.2]} label="Biceps" muscleId={3} />
-      <Hotspot position={[-0.9, -0.5, 0]} label="Forearms" muscleId={6} />
-      <Hotspot position={[-0.2, -0.2, 0.3]} label="Abs" muscleId={1} />
-      <Hotspot position={[0.2, -1, 0.2]} label="Legs" muscleId={7} />
-      <Hotspot position={[-0.2, -2, 0.2]} label="Calf" muscleId={4} />
-      <Hotspot position={[-0.6, -0.3, 0.2]} label="Triceps" muscleId={9} />
-      <Hotspot position={[0, 0.8, -0.3]} label="Back" muscleId={2} />
+      {points.map((pt, idx) => (
+        <group key={idx}>
+          <mesh
+            position={pt.pos}
+            onPointerOver={() => setHoveredIdx(idx)}
+            onPointerOut={() => setHoveredIdx(null)}
+            onClick={() => handleClick(pt.muscleId)}
+          >
+            <sphereGeometry args={[0.06, 32, 32]} />
+            <meshStandardMaterial color={hoveredIdx === idx ? "orange" : "lime"} />
+          </mesh>
+          {hoveredIdx === idx && (
+            <Html position={[pt.pos[0], pt.pos[1] + 0.2, pt.pos[2]]}>
+              <div className="bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-medium text-foreground shadow-lg cursor-pointer">
+                {pt.label}
+              </div>
+            </Html>
+          )}
+        </group>
+      ))}
     </>
   );
 }

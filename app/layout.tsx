@@ -3,6 +3,7 @@
 import React from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 //import NavBar from "./components/navbar/navbar";
 //import { Navbar } from "@nextui-org/navbar";
@@ -47,6 +48,7 @@ export default function RootLayout({
           </NextThemesProvider>
         </NextUI>
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );
