@@ -8,40 +8,56 @@ import {
   Link
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
-//import { Link } from "@nextui-org/link";
-import NextLink from "next/link";
-import { useState } from "react";
-import AuthModal from "../modals/login_signup"; // asigură-te că este corect importat
+import { useEffect, useState } from "react";
+import AuthModal from "../modals/login_signup"; 
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Input, Kbd } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import { SearchIcon } from "@/components/icons";
-import { siteConfig } from "@/config/site";
-import { link as linkStyles } from "@nextui-org/theme";
-import clsx from "clsx";
-import { FaCog } from 'react-icons/fa';
+import { FaCog } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext"; 
+import { useSearchParams } from "next/navigation";
 
 export const Navbar = () => {
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const searchParams = useSearchParams();
   const toggleModal = () => setIsModalOpen((prev) => !prev);
+  const { user, isLoading, isAuthenticated, logout,isAdmin } = useAuth();
+  const [userAuthenticated, setUserAuthenticated] = useState(false);
 
-  const handleLoginClick = () => {
-    setIsModalOpen(true);
-  };
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-black text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      setUserAuthenticated(true)
+    }
+  }, [isLoading, isAuthenticated])
+
+  const handleButtonClick = async () => {
+    if (userAuthenticated) {
+      await logout()
+      setUserAuthenticated(false)
+    } else {
+      setIsModalOpen(true);
+    }
+  }
+
+  // const handleOpenChange = (state) => {
+  //   toggleModal();
+  // };
+  // const searchInput = (
+  //   <Input
+  //     aria-label="Search"
+  //     classNames={{
+  //       inputWrapper: "bg-default-100",
+  //       input: "text-sm",
+  //     }}
+  //     labelPlacement="outside"
+  //     placeholder="Search..."
+  //     startContent={
+  //       <SearchIcon className="text-base text-black text-default-400 pointer-events-none flex-shrink-0" />
+  //     }
+  //     type="search"
+  //   />
+  // );
 
   return (
     <NextUINavbar maxWidth="2xl" position="sticky" height="10vh">
@@ -60,12 +76,28 @@ export const Navbar = () => {
             About
           </Link>
         </NavbarItem>
-
+        {userAuthenticated && (
         <NavbarItem>
-          <Link href="/pages/muscles" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          <Link
+            href='/muscles'
+            className='text-indigo-600 text-2xl hover:text-indigo-800'
+          >
             Muscles
           </Link>
         </NavbarItem>
+      )}
+
+
+{userAuthenticated && isAdmin && (
+        <NavbarItem>
+          <Link
+            href='/add_ex'
+            className='text-indigo-600 text-2xl hover:text-indigo-800'
+          >
+            Add exercise
+          </Link>
+        </NavbarItem>
+      )}
         <NavbarItem>
           <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800">
             Pricing
@@ -74,28 +106,41 @@ export const Navbar = () => {
 
     <NavbarContent justify="end" className="flex items-center gap-4">
       <Input
-        aria-label="Search"
-        className="bg-default-100"
+        aria-label="Search" 
+        className="bg-default-100 rounded-full"
         placeholder="Search..."
         type="search"
       />
       
       <ThemeSwitch />
 
+      {isAuthenticated ? (
+          <NavbarItem>
+            <span className='text-foreground'>Welcome, {user?.name}</span>
+          </NavbarItem>
+        ) : (
+          ''
+        )}
+
       {/* Butonul de Login */}
       <NavbarItem>
-        <Button
-          variant="flat"
-          onClick={handleLoginClick}
-        >
-          Login
-        </Button>
-      </NavbarItem>
-        <NavbarItem>
-          <Link href="/pages/settings">
-            <FaCog className="text-default-600" />
-          </Link>
+          <Button
+            variant='flat'
+            onClick={handleButtonClick}
+            style={{
+              backgroundColor: isLoading
+                ? 'gray'
+                : userAuthenticated
+                ? 'red'
+                : 'blue',
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Loading...' : userAuthenticated ? 'Logout' : 'Login'}
+          </Button>
         </NavbarItem>
+
       </NavbarContent>
 
       {isModalOpen && <AuthModal isOpen={isModalOpen} onOpenChange={toggleModal} />}

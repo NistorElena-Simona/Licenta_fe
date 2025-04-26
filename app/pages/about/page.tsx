@@ -8,10 +8,7 @@ export default function About() {
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold mb-6">Why Choose Us?</h2>
         <p className="text-2xl max-w-4xl mx-auto mb-12 text-gray-600 leading-relaxed">
-          We provide developers with an intuitive and fully customizable React UI library 
-          that allows you to create beautiful, responsive websites with minimal effort. 
-          Whether you're a beginner or a seasoned developer, our library is designed to 
-          streamline your workflow and enhance your design experience.
+        Welcome to Fitness-App, your all-in-one platform for discovering, learning, and tracking exercises tailored to every muscle group. Whether you are a beginner or an advanced athlete, our application helps you explore detailed exercise instructions, muscle anatomy, and video demonstrations to ensure proper form and maximize your results.
         </p>
       </div>
 
@@ -30,8 +27,8 @@ export default function About() {
           <div className="p-4 text-center">
             <h3 className="text-2xl font-semibold mb-3">Fast Performance</h3>
             <p className="text-gray-600">
-              Our components are optimized for fast performance and quick load times, 
-              ensuring a seamless experience for your users.
+            Our platform is optimized for speed, ensuring that you can browse exercises, watch videos, and manage your workouts without any delays. Enjoy a seamless and responsive experience, whether you’re at home, in the gym, or on the go.
+
             </p>
           </div>
         </div>
@@ -50,8 +47,7 @@ export default function About() {
           <div className="p-4 text-center">
             <h3 className="text-2xl font-semibold mb-3">Easy Customization</h3>
             <p className="text-gray-600">
-              Customize the appearance and behavior of every component with simple 
-              and clear API options to fit your brand and style.
+            Fitness-App allows you to personalize your workout experience. As an admin, you can easily add new exercises, update muscle information, and enrich each entry with images and video tutorials. The intuitive interface makes it simple for everyone to find and manage the content they need.
             </p>
           </div>
         </div>
@@ -70,8 +66,7 @@ export default function About() {
           <div className="p-4 text-center">
             <h3 className="text-2xl font-semibold mb-3">Human Body</h3>
             <p className="text-gray-600">
-              Our library is built to be flexible, allowing you to create a wide 
-              variety of designs, from minimal to complex layouts.
+            Explore detailed muscle anatomy and understand how each exercise targets specific muscle groups. Our visual guides and video demonstrations help you perform every movement with correct form, reducing the risk of injury and maximizing your progress.
             </p>
           </div>
         </div>

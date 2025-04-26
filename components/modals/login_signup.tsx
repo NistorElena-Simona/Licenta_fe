@@ -13,6 +13,12 @@ import {
 } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
 import { z } from "zod";
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
+
 
 export interface SignUpFormData {
   name: string;
@@ -41,11 +47,17 @@ export default function AuthModal({
   const [isSignUp, setIsSignUp] = useState(false);
   const [errors, setErrors] = useState<Partial<SignUpFormData>>({});
   const [loading, setLoading] = useState(false);
+  const { login, register, isLoading, error, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || '/muscles';
   const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
     email: "",
     password: "",
   });
+  const { toast } = useToast();
+ 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,47 +73,37 @@ export default function AuthModal({
       }));
     }
   };
+
   const handleSubmit = async () => {
     setLoading(true);
-    console.log("🟢 handleSubmit called!"); 
+    console.log("🟢 handleSubmit called!");
     try {
-      formSchema.parse(formData);
-
-      const url = isSignUp
-        ? "http://localhost:3000/user/register"
-        : "http://localhost:3000/auth/login";
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const body = isSignUp
-      ? { name: formData.name, email: formData.email, password: formData.password }
-      : { email: formData.email, password: formData.password };
-
-    // 🛠 Log înainte de trimiterea datelor
-    console.log("📤 Sending payload to BE:", JSON.stringify(body, null, 2));
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      console.log("FormData:",data);
-
+     // formSchema.parse(formData);
+      
+      const { name, email, password } = formData;
+      const body = isSignUp ? { name, email, password } : { email, password };
+      
+      console.log("📤 Sending payload to BE:", JSON.stringify(body, null, 2));
+  
       if (isSignUp) {
-        toast.success("Account created successfully! Check your email.");
+        await register({ name, email, password });
+        toast({
+          title: "Succes",
+          description: "Account created successfully! Check your email.",
+        });
+        //toast.success("Account created successfully! Check your email.");
       } else {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        toast.success("Logged in successfully!");
-        setTimeout(onOpenChange, 1000); 
-      }
+        await login({ email, password });
+        toast({
+          title: "Succes",
+          description: "Logged in successfully!",
+        });
+        //toast.success("Logged in successfully!");
+        setTimeout(onOpenChange, 1000);
+        router.push(from);
 
-      onOpenChange();
-    } catch (error: any) {
+      }
+    } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Partial<SignUpFormData> = {};
         error.errors.forEach((err) => {
@@ -109,12 +111,17 @@ export default function AuthModal({
         });
         setErrors(fieldErrors);
       } else {
-        toast.error(error.message || "Something went wrong");
+        toast({
+          title: "Error",
+          description:  "Something went wrong",
+        });
+        //toast.error(error.message || "Something went wrong");
       }
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <>

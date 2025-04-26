@@ -20,6 +20,9 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
 }
 
 .modal {
