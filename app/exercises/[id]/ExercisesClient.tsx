@@ -55,57 +55,65 @@ export default function ExercisesClient() {
   }, [muscleId]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => router.back()}
-          className="flex items-center gap-2 hover:bg-gray-100"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Înapoi la mușchi
-        </Button>
-        <h1 className="text-3xl font-bold">Exerciții pentru {muscle?.name || 'mușchiul selectat'}</h1>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-foreground hover:bg-muted/50"
+              onClick={() => router.push("/muscles")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Go to muscle
+            </Button>
+            <h1 className="text-3xl font-bold">Exercises for {muscle?.name || 'mușchiul selectat'}</h1>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {exercises.map((exercise) => (
-          <Card key={exercise.id} className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-xl">{exercise.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {exercise.imageUrl && (
-                <div className="mb-4 relative">
-                  {exercise.imageUrl.includes('youtube.com') ? (
-                    <>
-                      <img
-                        src={`https://img.youtube.com/vi/${exercise.imageUrl.split('v=')[1]}/hqdefault.jpg`}
-                        alt={exercise.name}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <Button
-                        onClick={() => exercise.imageUrl && setSelectedVideo(exercise.imageUrl)}
-                        className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-black/50 hover:bg-black/70"
-                      >
-                        <Play className="w-8 h-8 text-white" />
-                      </Button>
-                    </>
-                  ) : (
-                    <img
-                      src={exercise.imageUrl}
-                      alt={exercise.name}
-                      className="w-full h-32 object-contain rounded-lg bg-gray-100"
-                    />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {exercises.map((exercise) => (
+              <Card key={exercise.id} className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle
+                    className="flex text-xl justify-center items-center text-center min-h-[56px] h-[56px] w-full"
+                  >
+                    {exercise.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {exercise.imageUrl && (
+                    <div className="mb-4 relative">
+                      {exercise.imageUrl.includes('youtube.com') ? (
+                        <>
+                          <img
+                            src={`https://img.youtube.com/vi/${exercise.imageUrl.split('v=')[1]}/hqdefault.jpg`}
+                            alt={exercise.name}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <Button
+                            onClick={() => exercise.imageUrl && setSelectedVideo(exercise.imageUrl)}
+                            className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-black/50 hover:bg-black/70"
+                          >
+                            <Play className="w-8 h-8 text-white" />
+                          </Button>
+                        </>
+                      ) : (
+                        <img
+                          src={exercise.imageUrl}
+                          alt={exercise.name}
+                          className="w-full h-32 object-contain rounded-lg bg-gray-100"
+                        />
+                      )}
+                    </div>
                   )}
-                </div>
-              )}
-              {exercise.description && (
-                <p className="text-gray-600">{exercise.description}</p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                  {exercise.description && (
+                    <p className="text-gray-600">{exercise.description}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
 
       <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>

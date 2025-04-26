@@ -22,7 +22,7 @@ export const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const toggleModal = () => setIsModalOpen((prev) => !prev);
-  const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { user, isLoading, isAuthenticated, logout,isAdmin } = useAuth();
   const [userAuthenticated, setUserAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -40,9 +40,9 @@ export const Navbar = () => {
     }
   }
 
-  const handleOpenChange = (state) => {
-    toggleModal();
-  };
+  // const handleOpenChange = (state) => {
+  //   toggleModal();
+  // };
   const searchInput = (
     <Input
       aria-label="Search"
@@ -83,6 +83,18 @@ export const Navbar = () => {
             className='text-indigo-600 text-2xl hover:text-indigo-800'
           >
             Muscles
+          </Link>
+        </NavbarItem>
+      )}
+
+
+{userAuthenticated && isAdmin && (
+        <NavbarItem>
+          <Link
+            href='/add_ex'
+            className='text-indigo-600 text-2xl hover:text-indigo-800'
+          >
+            Add exercise
           </Link>
         </NavbarItem>
       )}

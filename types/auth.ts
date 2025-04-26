@@ -2,7 +2,7 @@ export interface User {
     id: string;
     email: string;
     name: string;
-    roles: string[];
+    roles: ("ADMIN" | "EMPLOYEE")[];
   }
   
   export interface LoginCredentials {

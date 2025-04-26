@@ -49,7 +49,7 @@ export default function AuthModal({
   const { login, register, isLoading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/pages/muscles';
+  const from = searchParams.get('from') || '/muscles';
   const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
     email: "",

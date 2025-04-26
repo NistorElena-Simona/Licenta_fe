@@ -10,6 +10,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (accessToken) {
           const userData = await getMe();
           setUser(userData);
+          setIsAdmin(Array.isArray(userData.roles) && userData.roles.includes('ADMIN'));
         }
       } catch (error) {
         try {
@@ -69,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const userData = await getMe();
       setUser(userData);
+      setIsAdmin(Array.isArray(userData.roles) && userData.roles.includes('ADMIN'));
       return tokens;
     } catch (error) {
       throw error;
@@ -86,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const userData = await getMe();
       setUser(userData);
+      setIsAdmin(Array.isArray(userData.roles) && userData.roles.includes('ADMIN'));
     } catch (error: any) {
       setError(error.message || 'Failed to login');
       throw error;
@@ -125,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       setUser(null);
+      setIsAdmin(false);
       
       router.push('/');
     } catch (error: any) {
@@ -138,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isLoading,
     isAuthenticated: !!user,
+    isAdmin,
     login: handleLogin,
     register: handleRegister,
     logout: handleLogout,
