@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Trash } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@/components/context/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 
 interface Exercise {
@@ -30,6 +37,7 @@ export default function ExercisesClient() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [muscle, setMuscle] = useState<Muscle | null>(null);
   const { isAdmin } = useAuth();
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +76,14 @@ export default function ExercisesClient() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {exercises.map((exercise) => (
-              <Card key={exercise.id} className="overflow-hidden">
+              <Card
+                key={exercise.id}
+                className="overflow-hidden cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/video/${exercise.id}`);
+                }}
+              >
                 <CardHeader>
                   <CardTitle
                     className="flex text-xl justify-center items-center text-center min-h-[56px] h-[56px] w-full"
@@ -94,8 +109,11 @@ export default function ExercisesClient() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-blue-600 hover:text-blue-700 "
-                        onClick={() => router.push(`/exercise/${exercise.id}`)}
+                        className="text-blue-600 hover:text-blue-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/exercise/${exercise.id}`);
+                        }}
                         aria-label="Edit"
                       >
                         <Edit className="w-6 h-6"/>
@@ -104,11 +122,9 @@ export default function ExercisesClient() {
                         variant="ghost"
                         size="icon"
                         className="text-red-600 hover:text-red-700"
-                        onClick={async () => {
-                          if (window.confirm("Are you sure you want to delete this exercise?")) {
-                            await fetch(`http://localhost:3000/exercises/${exercise.id}`, { method: "DELETE" });
-                            setExercises(exercises.filter(ex => ex.id !== exercise.id));
-                          }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteId(exercise.id);
                         }}
                         aria-label="Delete"
                       >
@@ -122,6 +138,32 @@ export default function ExercisesClient() {
           </div>
         </div>
       </div>
+      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center">Are you sure you want to delete this exercise?</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="w-full flex justify-between">
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  if (deleteId) {
+                    await fetch(`http://localhost:3000/exercises/${deleteId}`, { method: "DELETE" });
+                    setExercises(exercises.filter(ex => ex.id !== deleteId));
+                    setDeleteId(null);
+                  }
+                }}
+              >
+                Yes, delete
+              </Button>
+              <Button variant="ghost" onClick={() => setDeleteId(null)}>
+                Cancel
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

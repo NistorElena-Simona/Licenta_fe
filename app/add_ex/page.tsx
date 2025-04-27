@@ -17,6 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { ArrowLeft } from "lucide-react";
 
 interface Muscle {
   id: number;
@@ -28,6 +29,7 @@ const exerciseSchema = z.object({
   name: z.string().min(4, "Exercise name must be at least 4 characters!"),
   description: z.string().min(6, "Description must be at least 6 characters!"),
   imageUrl: z.string().min(17, "Image URL must be at least 17 characters!"),
+  videoURL: z.string().optional(),
 });
 
 export default function AddExercisePage() {
@@ -40,6 +42,7 @@ export default function AddExercisePage() {
     description: "",
     imageUrl: "",
     muscleId: "",
+    videoUrl: "",
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
@@ -123,6 +126,11 @@ export default function AddExercisePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
+      
+       <Button variant="ghost" className="flex items-center gap-2" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
+          Go back
+        </Button>
       <h1 className="text-3xl font-bold mb-8">Add new exercise</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         <div className="space-y-2">
@@ -180,6 +188,19 @@ export default function AddExercisePage() {
             required
           />
           {formErrors.imageUrl && <span className="text-red-500 text-sm">{formErrors.imageUrl}</span>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="videoURL">Video URL</Label>
+          <Input
+            id="videoURL"
+            type="url"
+            value={formData.videoUrl}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, videoUrl: e.target.value })}
+            placeholder="Introdu URL-ul videoului"
+            required
+          />
+          {formErrors.videoURL && <span className="text-red-500 text-sm">{formErrors.videoURL}</span>}
         </div>
 
         <Button type="submit">Add exercise</Button>

@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@nextui-org/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function UpdateExercisePage() {
   const { toast } = useToast();
@@ -13,7 +15,8 @@ export default function UpdateExercisePage() {
     name: "",
     description: "",
     imageUrl: "",
-    muscleId: ""
+    muscleId: "",
+    videoUrl: ""
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,7 +31,8 @@ export default function UpdateExercisePage() {
           name: data.name || "",
           description: data.description || "",
           imageUrl: data.imageUrl || "",
-          muscleId: data.muscleId ? data.muscleId.toString() : ""
+          muscleId: data.muscleId ? data.muscleId.toString() : "",
+          videoUrl: data.videoUrl || ""
         });
       } catch (err) {
         setError("Failed to load exercise data");
@@ -80,6 +84,11 @@ export default function UpdateExercisePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
+      <Button variant="ghost" className="mb-6 flex items-center gap-2" onClick={() => router.back()}>
+      <ArrowLeft className="h-4 w-4" />
+        Go back
+      </Button>
+      
       <h1 className="text-3xl font-bold mb-8">Update Exercise</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         <div className="space-y-2">
@@ -125,6 +134,17 @@ export default function UpdateExercisePage() {
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
             required
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="videoUrl" className="block font-semibold">Video URL</label>
+          <input
+            id="videoUrl"
+            name="videoUrl"
+            value={formData.videoUrl}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="https://youtube.com/..."
           />
         </div>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update</button>
