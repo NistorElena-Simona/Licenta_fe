@@ -76,6 +76,15 @@ export const Navbar = () => {
             About
           </Link>
         </NavbarItem>
+
+        <NavbarItem>
+          <Link
+            href='/favorites'
+            className='text-indigo-600 text-2xl hover:text-indigo-800'
+          >
+            Favorites exercises
+          </Link>
+        </NavbarItem>
         {userAuthenticated && (
         <NavbarItem>
           <Link
@@ -85,6 +94,8 @@ export const Navbar = () => {
             Muscles
           </Link>
         </NavbarItem>
+
+        
       )}
 
 

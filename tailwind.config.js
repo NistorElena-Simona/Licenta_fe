@@ -22,6 +22,10 @@ module.exports = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+		  backgroundImage: {
+			'app-gradient': 'linear-gradient(135deg, #e0e7ff 0%, #fff 100%)', // light
+			'app-gradient-dark': 'linear-gradient(135deg, #0f172a 0%, #312e81 100%)', // dark
+		  },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
