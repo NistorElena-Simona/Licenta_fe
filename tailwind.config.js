@@ -22,10 +22,10 @@ module.exports = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-		  backgroundImage: {
-			'app-gradient': 'linear-gradient(135deg, #e0e7ff 0%, #fff 100%)', // light
-			'app-gradient-dark': 'linear-gradient(135deg, #0f172a 0%, #312e81 100%)', // dark
-		  },
+		 backgroundImage: {
+      'app-gradient': 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', // light
+      'app-gradient-dark': 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)', // dark
+    },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -53,10 +53,15 @@ module.exports = {
   				DEFAULT: 'hsl(var(--accent))',
   				foreground: 'hsl(var(--accent-foreground))'
   			},
+			  backgroundImage: {
+				'app-gradient': 'linear-gradient(135deg, #e0e7ff 0%, #fff 100%)', // light
+				'app-gradient-dark': 'linear-gradient(135deg, #0f172a 0%, #312e81 100%)', // dark
+			  },
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
+			
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',

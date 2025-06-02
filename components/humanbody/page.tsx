@@ -150,8 +150,8 @@ function MeshComponent() {
 
 export function Shiba() {
   return (
-    <div className="flex justify-center items-center h-screen bg-background text-foreground">
-       <Canvas className="h-full w-full bg-background">
+    <div className="flex justify-center items-center h-screen text-foreground">
+       <Canvas className="h-full w-full">
         <ambientLight intensity={0.5} />
         <directionalLight position={[2, 5, 2]} intensity={1} />
         <OrbitControls 

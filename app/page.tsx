@@ -10,7 +10,7 @@ export default function Home() {
   const { isModalOpen, closeModal } = useModalContext();
 
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 bg-background text-foreground min-h-screen">
+    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 text-foreground min-h-screen" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
       {/* Secțiunea principală cu componenta Shiba */}
       <div className="w-full h-full">
         <Shiba />

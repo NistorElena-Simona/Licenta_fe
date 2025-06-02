@@ -54,8 +54,8 @@ export default function FavoritesPage() {
         } catch (error) {
           toast({
             variant: "destructive",
-            title: "Eroare",
-            description: "Nu s-au putut încărca exercițiile favorite",
+            title: "Error",
+            description: "Can t load favorite exercises",
           });
         } finally {
           setLoading(false);
@@ -78,10 +78,10 @@ export default function FavoritesPage() {
     <div className="container mx-auto px-4 py-12">
       <Button variant="ghost" className="flex items-center gap-2 mb-8" onClick={() => router.back()}>
         <ArrowLeft className="h-4 w-4" />
-        Înapoi
+       Back
       </Button>
       
-      <h1 className="flex text-3xl font-bold mb-8 pt-4 justify-center items-center">Exercițiile mele favorite</h1>
+      <h1 className="flex text-3xl font-bold mb-8 pt-4 justify-center items-center">My Favorite Exercises</h1>
       
       <div className="grid gap-6">
         {favorites.map((favorite) => (
@@ -115,8 +115,8 @@ export default function FavoritesPage() {
             <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4 animate-pulse">
               <path d="M12 21s-6.716-5.317-9.293-8.293C.37 10.37 0 8.5 0 7a6 6 0 0 1 12 0 6 6 0 0 1 12 0c0 1.5-.37 3.37-2.707 5.707C18.716 15.683 12 21 12 21z" fill="#e11d48"/>
             </svg>
-            <p className="text-center text-xl text-gray-400 font-semibold pt-4">Nu ai niciun exercițiu favorit încă.</p>
-            <p className="text-center text-gray-500 mt-2">Adaugă exerciții la favorite apăsând pe inimioară!</p>
+            <p className="text-center text-xl text-gray-400 font-semibold pt-4">No favorite exercises here</p>
+            <p className="text-center text-gray-500 mt-2">Press heart from each exercise to add fav exercises, max 20</p>
           </div>
         )}
       </div>

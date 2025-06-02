@@ -28,7 +28,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <body className={`${inter.className} min-h-screen flex flex-col`} style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
         <AuthProvider>
         <NextUI>
           <NextThemesProvider attribute="class" defaultTheme="light">
@@ -53,4 +53,3 @@ export default function RootLayout({
     </html>
   );
 }
-

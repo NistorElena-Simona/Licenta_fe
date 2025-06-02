@@ -5,7 +5,11 @@ import {
   NavbarContent,
   NavbarBrand,
   NavbarItem,
-  Link
+  Link,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import { useEffect, useState } from "react";
@@ -63,7 +67,7 @@ export const Navbar = () => {
     <NextUINavbar maxWidth="2xl" position="sticky" height="10vh">
     <NavbarContent justify="start">
       <NavbarBrand>
-        <Link href="/" className="font-bold text-2xl text-indigo-600 hover:text-indigo-800 ">
+        <Link href="/" className="font-bold text-2xl text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-300">
           Fitness-App
         </Link>
       </NavbarBrand>
@@ -72,45 +76,79 @@ export const Navbar = () => {
     
         {/* Link către pagina About */}
         <NavbarItem>
-          <Link href="/pages/about" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          <Link href="/pages/about" className="text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300">
             About
           </Link>
         </NavbarItem>
 
-        <NavbarItem>
-          <Link
-            href='/favorites'
-            className='text-indigo-600 text-2xl hover:text-indigo-800'
-          >
-            Favorites exercises
-          </Link>
-        </NavbarItem>
+       
         {userAuthenticated && (
+        // <>
+        //  <NavbarItem>
+        //   <Link
+        //     href='/favorites'
+        //     className='text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-100'
+        //   >
+        //     Favorites exercises
+        //   </Link>
+        // </NavbarItem>
+        // <NavbarItem>
+        //   <Link
+        //     href='/muscles'
+        //     className='text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300'
+        //   >
+        //     Muscles
+        //   </Link>
+        // </NavbarItem><NavbarItem>
+        //     <Link
+        //       href='/challenges'
+        //       className='text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300'
+        //     >
+        //       Challenges
+        //     </Link>
+        //   </NavbarItem>
+        //   </>
         <NavbarItem>
-          <Link
-            href='/muscles'
-            className='text-indigo-600 text-2xl hover:text-indigo-800'
-          >
-            Muscles
-          </Link>
-        </NavbarItem>
-
-        
+            <Dropdown>
+              <DropdownTrigger>
+                <Button 
+                  variant="light" 
+                  className="text-green-600 text-2xl  dark:text-red-400 "
+                >
+                  Menu
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="User menu">
+                {[
+                  { key: "favorites", href: "/favorites", label: "Favorites exercises" },
+                  { key: "muscles", href: "/muscles", label: "Muscles" },
+                  { key: "challenges", href: "/challenges", label: "Challenges" },
+                  ...(isAdmin ? [{ key: "add_exercise", href: "/add_ex", label: "Add exercise" }] : [])
+                ].map(item => (
+                  <DropdownItem key={item.key}>
+                    <Link href={item.href} className="text-indigo-600  dark:text-indigo-400 ">
+                      {item.label}
+                    </Link>
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
       )}
 
 
-{userAuthenticated && isAdmin && (
+{/* {userAuthenticated && isAdmin && (
         <NavbarItem>
           <Link
             href='/add_ex'
-            className='text-indigo-600 text-2xl hover:text-indigo-800'
+            className='text-indigo-600 text-2xl hover:text-indigo-500 dark:hover:text-indigo-100'
           >
             Add exercise
           </Link>
         </NavbarItem>
-      )}
+      )} */}
         <NavbarItem>
-          <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800">
+          <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300">
             Pricing
           </Link>
         </NavbarItem>
