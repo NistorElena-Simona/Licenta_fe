@@ -3,126 +3,215 @@
 import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/context/AuthContext";
+import { useSearchParams } from "next/navigation";
 
 const plans = [
   {
     name: "Basic",
     price: "0",
-    description: "Perfect pentru începători",
+    description: "Perfect for beginners",
     features: [
-      "Acces la exerciții de bază",
-      "Planificare simplă",
-      "Suport prin email",
-      "Comunitate online"
+      "Access to basic exercises",
+      "3D body visualization",
+      "Video tutorials for each exercise",
+      "Muscle anatomy information",
+      "Exercise search functionality"
     ],
-    buttonText: "Începe gratuit",
-    popular: false
+    buttonText: "You are free user already",
+    popular: false,
+    disabled: true,
+    priceId: null
   },
   {
     name: "Pro",
-    price: "99",
-    description: "Pentru cei care vor să progreseze",
+    price: "10",
+    description: "For those who want to progress",
     features: [
-      "Toate funcționalitățile Basic",
-      "Planificare avansată",
-      "Suport prioritar",
-      "Acces la conținut premium",
-      "Statistici detaliate",
-      "Programe personalizate"
+      "All Basic features included",
+      "Personal favorite exercises list",
+      "Access to challenges",
+      "Advanced exercise filtering",
+      "Priority support",
+      "Enhanced user experience"
     ],
-    buttonText: "Începe acum",
-    popular: true
-  },
-  {
-    name: "Enterprise",
-    price: "199",
-    description: "Pentru antrenori și sali de sport",
-    features: [
-      "Toate funcționalitățile Pro",
-      "Gestionare clienți",
-      "API personalizat",
-      "Suport dedicat 24/7",
-      "Branding personalizat",
-      "Analytics avansat"
-    ],
-    buttonText: "Contactează-ne",
-    popular: false
+    buttonText: "Get Started",
+    popular: true,
+    disabled: false,
+    priceId: "price_1234567890" // Înlocuiește cu Price ID-ul real din Stripe Dashboard
   }
 ];
 
 export default function PricingPage() {
+  const [loading, setLoading] = useState<string | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+
+  // Verifică dacă utilizatorul este autentificat
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Authentication Required</h2>
+          <p className="text-gray-600 mb-6">You must be logged in to view pricing plans.</p>
+          <Button 
+            onClick={() => window.location.href = '/auth/login'}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Verifică dacă utilizatorul vine de la o plată reușită
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      // Actualizează statusul premium
+      setIsPremium(true);
+      
+      // Afișează toast-ul de succes
+      toast({
+        title: "Payment successful!",
+        description: "Congratulations! You now have access to all Pro features.",
+        duration: 5000,
+      });
+
+      // Opțional: Elimină session_id din URL pentru curățenie
+      const url = new URL(window.location.href);
+      url.searchParams.delete('session_id');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams, toast]);
+
+  const handleCheckout = async (priceId: string, planName: string) => {
+    if (!priceId) return;
+    
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to purchase Premium.",
+      });
+      return;
+    }
+    
+    setLoading(priceId);
+    
+    try {
+      // Redirectează către pagina de checkout cu Payment Element
+      window.location.href = '/pages/checkout';
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "An error occurred while processing your payment.",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 overflow-hidden bg-background">
-      <div className="h-full w-full px-4 flex flex-col justify-center items-center">
+    <div className="min-h-screen py-12" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
+      <div className="container mx-auto px-4 flex flex-col justify-center items-center">
         <div className="text-center mb-8 w-full py-10">
-          
-         
+          <h1 className="text-4xl font-bold mb-4 text-foreground">Choose Your Perfect Plan</h1>
+          <p className="text-xl text-foreground/80">Start transforming your fitness journey with our flexible plans</p>
+          {isPremium && (
+            <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg inline-block">
+             🎉 Congratulations! You have active Premium status!
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-          {plans.map((plan) => (
-            <Card 
-              key={plan.name}
-              className={`relative h-full flex flex-col ${
-                plan.popular 
-                  ? "border-2 border-indigo-500 shadow-lg scale-105" 
-                  : "border border-gray-200"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-indigo-500 text-white text-sm font-semibold px-4 py-1 rounded-full">
-                    Cel mai popular
-                  </span>
-                </div>
-              )}
-              
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">${plan.price}</span>
-                  <span className="text-gray-500">/lună</span>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="flex-grow">
-                <ul className="space-y-4">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center">
-                      <Check className="h-5 w-5 text-indigo-500 mr-2" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              
-              <CardFooter>
-                <Button 
-                  className={`w-full text-foreground ${
-                    plan.popular 
-                      ? "bg-indigo-600 hover:bg-indigo-700" 
-                      : "bg-gray-900 hover:bg-gray-800"
-                  }`}
-                >
-                  {plan.buttonText}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl justify-center">
+          {plans.map((plan) => {
+            // Actualizează textul și statusul pentru planul Pro dacă utilizatorul este premium
+            const isCurrentlyPremium = isPremium && plan.name === "Pro";
+            const buttonText = isCurrentlyPremium ? "Current Plan ✓" : plan.buttonText;
+            const isDisabled = plan.disabled || isCurrentlyPremium;
+
+            return (
+              <Card 
+                key={plan.name}
+                className={`relative h-full flex flex-col ${
+                  plan.popular 
+                    ? "border-2 border-indigo-500 shadow-lg scale-105" 
+                    : "border border-gray-200"
+                } ${isCurrentlyPremium ? "bg-green-50 border-green-400" : ""}`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className={`text-white text-sm font-semibold px-4 py-1 rounded-full ${
+                      isCurrentlyPremium ? "bg-green-500" : "bg-indigo-500"
+                    }`}>
+                      {isCurrentlyPremium ? "Active Plan" : "Most Popular"}
+                    </span>
+                  </div>
+                )}
+                
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">${plan.price}</span>
+                    <span className="text-gray-500">/month</span>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="flex-grow">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center">
+                        <Check className={`h-5 w-5 mr-2 ${
+                          isCurrentlyPremium ? "text-green-500" : "text-indigo-500"
+                        }`} />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                
+                <CardFooter>
+                  <Button 
+                    disabled={isDisabled || loading === plan.priceId}
+                    onClick={() => plan.priceId && handleCheckout(plan.priceId, plan.name)}
+                    className={`w-full ${
+                      isDisabled
+                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                        : isCurrentlyPremium
+                          ? "bg-green-600 hover:bg-green-700 text-white"
+                          : plan.popular 
+                            ? "bg-indigo-600 hover:bg-indigo-700 text-white" 
+                            : "bg-gray-900 hover:bg-gray-800 text-white"
+                    }`}
+                  >
+                    {loading === plan.priceId ? "Loading..." : buttonText}
+                  </Button>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
 
-        <div className="mt-8 text-center w-full max-w-3xl">
-          <h2 className="text-2xl font-bold mb-4">Întrebări frecvente</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-12 text-center w-full max-w-3xl">
+          <h2 className="text-2xl font-bold mb-6 text-foreground">Frequently Asked Questions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-background p-6 rounded-lg shadow">
-              <h3 className="font-semibold mb-2">Pot să schimb planul mai târziu?</h3>
-              <p className="text-gray-600">Da, poți să-ți actualizezi sau să-ți cobori planul în orice moment.</p>
+              <h3 className="font-semibold mb-2">Can I change my plan later?</h3>
+              <p className="text-gray-600">Yes, you can upgrade or downgrade your plan at any time from your account settings.</p>
             </div>
             <div className="bg-background p-6 rounded-lg shadow">
-              <h3 className="font-semibold mb-2">Există o perioadă de probă?</h3>
-              <p className="text-gray-600">Planul Basic este gratuit pentru totdeauna, iar planul Pro oferă o perioadă de probă de 14 zile.</p>
+              <h3 className="font-semibold mb-2">Is there a free trial?</h3>
+              <p className="text-gray-600">The Basic plan is free forever, and you can try Pro features with a 14-day free trial.</p>
             </div>
           </div>
         </div>

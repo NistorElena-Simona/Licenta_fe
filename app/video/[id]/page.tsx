@@ -57,7 +57,7 @@ export default function VideoPage() {
   }
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-background overflow-hidden">
+    <div className="min-h-screen h-screen flex flex-col bg-[radial-gradient(circle_at_50%_0%,_#b3cfff_0%,_#1e3a8a_80%,_#0a1747_100%)] overflow-hidden">
       <div className="w-full max-w-3xl mx-auto px-4 pt-8">
         <Button
           variant="ghost"
@@ -86,7 +86,7 @@ export default function VideoPage() {
             </p>
           </div>
         )}
-        <p className="text-gray-600">{exercise.description}</p>
+        <p className="text-foreground">{exercise.description}</p>
       </div>
     </div>
   );

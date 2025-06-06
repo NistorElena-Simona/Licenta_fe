@@ -34,7 +34,7 @@ export default function ExercisesClient() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { isAuthenticated, isAdmin, accessToken } = useAuth();
+  const { isAuthenticated, isAdmin, accessToken, user } = useAuth();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [muscle, setMuscle] = useState<Muscle | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -90,8 +90,8 @@ export default function ExercisesClient() {
       if (response.ok) {
         setExercises(exercises.filter(ex => ex.id !== deleteId));
         toast({
-          title: "Succes",
-          description: "Exercițiul a fost șters cu succes!",
+          title: "Success",
+          description: "Exercise was successfully deleted!",
         });
       } else {
         throw new Error('Failed to delete exercise');
@@ -99,8 +99,8 @@ export default function ExercisesClient() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Eroare",
-        description: "Nu s-a putut șterge exercițiul",
+        title: "Error",
+        description: "Could not delete the exercise",
       });
     } finally {
       setDeleteId(null);
@@ -113,10 +113,21 @@ export default function ExercisesClient() {
     if (!isAuthenticated) {
       toast({
         variant: "destructive",
-        title: "Eroare",
-        description: "Trebuie să fii autentificat pentru a adăuga exerciții la favorite",
+        title: "Error",
+        description: "You need to authenticate in app to see more details",
       });
       router.push('/pages/login');
+      return;
+    }
+
+    // Verifică dacă utilizatorul are Premium pentru funcționalitatea de favorite
+    if (!user?.isPremium) {
+      toast({
+        variant: "destructive",
+        title: "Premium Feature",
+        description: "Favorite exercises are available only for Premium users.",
+      });
+      // Oprește execuția pentru a nu continua cu logica de favorite
       return;
     }
 
@@ -127,8 +138,8 @@ export default function ExercisesClient() {
       if (!isFavorite && favorites.length >= 20) {
         toast({
           variant: "destructive",
-          title: "Eroare",
-          description: "Nu poți adăuga mai mult de 20 de exerciții la favorite",
+          title: "Error",
+          description: "Limit of favorite exercises is 20",
         });
         return;
       }
@@ -151,14 +162,14 @@ export default function ExercisesClient() {
         if (isFavorite) {
           setFavorites(favorites.filter(id => id !== exerciseId));
           toast({
-            title: "Succes",
-            description: "Exercițiul a fost eliminat din favorite",
+            title: "Success",
+            description: "Exercise was eliminated from favorites",
           });
         } else {
           setFavorites([...favorites, exerciseId]);
           toast({
-            title: "Succes",
-            description: "Exercițiul a fost adăugat la favorite",
+            title: "Success",
+            description: "Exercise has been added to favorites",
           });
         }
       } else {
@@ -167,8 +178,8 @@ export default function ExercisesClient() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Eroare",
-        description: "Nu s-a putut actualiza statusul favorit",
+        title: "Error",
+        description: "Failed to update favorite status",
       });
     }
   };
@@ -265,12 +276,12 @@ export default function ExercisesClient() {
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Șterge exercițiul</DialogTitle>
+            <DialogTitle>Delete exercise</DialogTitle>
           </DialogHeader>
-          <p>Ești sigur că vrei să ștergi acest exercițiu?</p>
+          <p>Are you sure you want to delete this exercise?</p>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDeleteId(null)}>Anulează</Button>
-            <Button variant="destructive" onClick={handleDelete}>Șterge</Button>
+            <Button variant="ghost" onClick={() => setDeleteId(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

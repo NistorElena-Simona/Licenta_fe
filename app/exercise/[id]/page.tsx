@@ -2,8 +2,24 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@nextui-org/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
+import { getMuscles } from "@/app/services/MuscleService";
+
+interface Muscle {
+  id: number;
+  name: string;
+}
 
 export default function UpdateExercisePage() {
   const { toast } = useToast();
@@ -11,6 +27,7 @@ export default function UpdateExercisePage() {
   const router = useRouter();
   // id-ul exercițiului este params.id
   const id = params.id as string;
+  const [muscles, setMuscles] = useState<Muscle[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -22,17 +39,24 @@ export default function UpdateExercisePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchExercise = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/exercises/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch exercise");
-        const data = await res.json();
+        // Fetch both exercise and muscles data
+        const [exerciseRes, musclesData] = await Promise.all([
+          fetch(`http://localhost:3000/exercises/${id}`),
+          getMuscles()
+        ]);
+        
+        if (!exerciseRes.ok) throw new Error("Failed to fetch exercise");
+        const exerciseData = await exerciseRes.json();
+        
+        setMuscles(musclesData);
         setFormData({
-          name: data.name || "",
-          description: data.description || "",
-          imageUrl: data.imageUrl || "",
-          muscleId: data.muscleId ? data.muscleId.toString() : "",
-          videoUrl: data.videoUrl || ""
+          name: exerciseData.name || "",
+          description: exerciseData.description || "",
+          imageUrl: exerciseData.imageUrl || "",
+          muscleId: exerciseData.muscleId ? exerciseData.muscleId.toString() : "",
+          videoUrl: exerciseData.videoUrl || ""
         });
       } catch (err) {
         setError("Failed to load exercise data");
@@ -45,12 +69,8 @@ export default function UpdateExercisePage() {
         setLoading(false);
       }
     };
-    if (id) fetchExercise();
+    if (id) fetchData();
   }, [id, toast]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,69 +105,77 @@ export default function UpdateExercisePage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <Button variant="ghost" className="mb-6 flex items-center gap-2" onClick={() => router.back()}>
-      <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" />
         Go back
       </Button>
       
       <h1 className="text-3xl font-bold mb-8">Update Exercise</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         <div className="space-y-2">
-          <label htmlFor="name" className="block font-semibold">Name</label>
-          <input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="description" className="block font-semibold">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="imageUrl" className="block font-semibold">Image URL</label>
-          <input
-            id="imageUrl"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="muscleId" className="block font-semibold">Muscle ID</label>
-          <input
-            id="muscleId"
-            name="muscleId"
-            type="number"
+          <Label htmlFor="muscle">Muscle</Label>
+          <Select
             value={formData.muscleId}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
+            onValueChange={(value: string) => setFormData({ ...formData, muscleId: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a muscle" />
+            </SelectTrigger>
+            <SelectContent>
+              {muscles.map((muscle) => (
+                <SelectItem key={muscle.id} value={muscle.id.toString()}>
+                  {muscle.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="name">Exercise name</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Enter the name of the exercise"
             required
           />
         </div>
+
         <div className="space-y-2">
-          <label htmlFor="videoUrl" className="block font-semibold">Video URL</label>
-          <input
-            id="videoUrl"
-            name="videoUrl"
-            value={formData.videoUrl}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            placeholder="https://youtube.com/..."
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Enter description of the exercise"
+            required
           />
         </div>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update</button>
+
+        <div className="space-y-2">
+          <Label htmlFor="imageUrl">Image URL</Label>
+          <Input
+            id="imageUrl"
+            type="url"
+            value={formData.imageUrl}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, imageUrl: e.target.value })}
+            placeholder="Enter the image URL"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="videoUrl">Video URL</Label>
+          <Input
+            id="videoUrl"
+            type="url"
+            value={formData.videoUrl}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, videoUrl: e.target.value })}
+            placeholder="Enter the video URL"
+          />
+        </div>
+
+        <Button type="submit">Update exercise</Button>
       </form>
     </div>
   );

@@ -119,12 +119,11 @@
 "use client";
 
 import ExercisesClient from "./ExercisesClient";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+
+
 
 export default function ExercisesPage() {
-  const router = useRouter();
+  
 
   return (
     <ExercisesClient />

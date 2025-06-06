@@ -109,8 +109,8 @@ function MeshComponent() {
       router.push(`/exercises/${muscleId}`);
     } else {
       toast({
-        title: "Autentificare necesară",
-        description: "Pentru a vedea detaliile exercițiilor, vă rugăm să vă conectați în aplicație.",
+        title: "Authentication required",
+        description: "To see details about the exercise please login ",
         variant: "destructive",
       });
     }

@@ -199,6 +199,7 @@ export default function AddExercisePage() {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, videoUrl: e.target.value })}
             placeholder="Introdu URL-ul videoului"
             required
+            className="text-green "
           />
           {formErrors.videoURL && <span className="text-red-500 text-sm">{formErrors.videoURL}</span>}
         </div>

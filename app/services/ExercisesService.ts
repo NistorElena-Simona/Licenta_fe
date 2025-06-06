@@ -29,3 +29,14 @@ export const getExercisesByMuscleId = async (muscleId: number) => {
     throw error; 
   }
 };
+
+// Funcție pentru a obține toate exercițiile
+export const getAllExercises = async () => {
+  try {
+    const response = await api.get('/exercises');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all exercises:', error);
+    throw error;
+  }
+};

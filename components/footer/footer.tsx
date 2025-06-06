@@ -63,7 +63,7 @@ export default function Footer_() {
                 <hr className="my-6 border-gray-700 sm:mx-auto lg:my-8" />
                 <div className="sm:flex sm:items-center sm:justify-between">
                     <span className="text-sm text-gray-400 sm:text-center">
-                        © 2024 <a href="/" className="hover:underline">FitnessApp™</a>. All Rights Reserved.
+                        © 2025 <a href="/" className="hover:underline">FitnessApp™</a>. All Rights Reserved.
                     </span>
                     <div className="flex mt-4 sm:justify-center sm:mt-0">
                         <a href="#" className="text-gray-400 hover:text-white ms-5">
