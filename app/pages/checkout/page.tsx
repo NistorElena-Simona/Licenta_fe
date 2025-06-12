@@ -86,6 +86,7 @@ export default function CheckoutPage() {
   const options = {
     clientSecret,
     appearance,
+    locale: 'en' as const,
     loader: 'auto' as const,
   };
 

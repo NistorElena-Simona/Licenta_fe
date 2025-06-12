@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/context/AuthContext";
+import { useModalContext } from "@/components/context/ModalContext";
 import { useSearchParams } from "next/navigation";
 
 const plans = [
@@ -48,45 +49,26 @@ export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const searchParams = useSearchParams();
+  const { toggleModal } = useModalContext();
 
-  // Verifică dacă utilizatorul este autentificat
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Authentication Required</h2>
-          <p className="text-gray-600 mb-6">You must be logged in to view pricing plans.</p>
-          <Button 
-            onClick={() => window.location.href = '/auth/login'}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-          >
-            Go to Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Verifică dacă utilizatorul vine de la o plată reușită
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    if (sessionId) {
-      // Actualizează statusul premium
-      setIsPremium(true);
-      
-      // Afișează toast-ul de succes
-      toast({
-        title: "Payment successful!",
-        description: "Congratulations! You now have access to all Pro features.",
-        duration: 5000,
-      });
+    if (searchParams) {
+      const sessionId = searchParams.get('session_id');
+      if (sessionId) {
+        setIsPremium(true);
+        
+        toast({
+          title: "Payment successful!",
+          description: "Congratulations! You now have access to all Pro features.",
+          duration: 5000,
+        });
 
-      // Opțional: Elimină session_id din URL pentru curățenie
-      const url = new URL(window.location.href);
-      url.searchParams.delete('session_id');
-      window.history.replaceState({}, '', url.toString());
+        const url = new URL(window.location.href);
+        url.searchParams.delete('session_id');
+        window.history.replaceState({}, '', url.toString());
+      }
     }
   }, [searchParams, toast]);
 
@@ -105,7 +87,6 @@ export default function PricingPage() {
     setLoading(priceId);
     
     try {
-      // Redirectează către pagina de checkout cu Payment Element
       window.location.href = '/pages/checkout';
     } catch (error: any) {
       console.error('Error:', error);
@@ -118,6 +99,34 @@ export default function PricingPage() {
       setLoading(null);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Loading...</h2>
+          <p className="text-gray-600">Please wait while we verify your authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Authentication Required</h2>
+          <p className="text-gray-600 mb-6">You must be logged in to view pricing plans.</p>
+          <Button 
+            onClick={toggleModal}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12" style={{ background: 'radial-gradient(circle at 50% 0%, #b3cfff 0%, #1e3a8a 80%, #0a1747 100%)' }}>
@@ -134,7 +143,6 @@ export default function PricingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl justify-center">
           {plans.map((plan) => {
-            // Actualizează textul și statusul pentru planul Pro dacă utilizatorul este premium
             const isCurrentlyPremium = isPremium && plan.name === "Pro";
             const buttonText = isCurrentlyPremium ? "Current Plan ✓" : plan.buttonText;
             const isDisabled = plan.disabled || isCurrentlyPremium;
@@ -194,7 +202,7 @@ export default function PricingPage() {
                             : "bg-gray-900 hover:bg-gray-800 text-white"
                     }`}
                   >
-                    {loading === plan.priceId ? "Loading..." : buttonText}
+                    {loading === plan.priceId ? "Already in use" : buttonText}
                   </Button>
                 </CardFooter>
               </Card>

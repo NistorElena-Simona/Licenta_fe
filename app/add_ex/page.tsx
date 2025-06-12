@@ -29,7 +29,7 @@ const exerciseSchema = z.object({
   name: z.string().min(4, "Exercise name must be at least 4 characters!"),
   description: z.string().min(6, "Description must be at least 6 characters!"),
   imageUrl: z.string().min(17, "Image URL must be at least 17 characters!"),
-  videoURL: z.string().optional(),
+  videoUrl: z.string().optional(),
 });
 
 export default function AddExercisePage() {
@@ -92,29 +92,41 @@ export default function AddExercisePage() {
     }
     setFormErrors({});
 
-    try {
-      const res = await fetch("http://localhost:3000/exercises", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          muscleId: parseInt(formData.muscleId)
-        })
-      });
-      if (!res.ok) throw new Error("Failed to add exercise");
-      toast({
-        title: "Succes",
-        description: "Exercițiul a fost adăugat cu succes!",
-      });
-      router.push("/muscles");
-    } catch (err: any) {
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: err.message || "Nu s-a putut adăuga exercițiul",
-      });
-    }
-  };
+  try {
+    
+  const res = await fetch("http://localhost:3000/exercises", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...formData,
+      muscleId: parseInt(formData.muscleId)
+    })
+    
+  });
+  console.log("Payload trimis:", {
+  ...formData,
+  muscleId: parseInt(formData.muscleId),
+});
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const errorMessage = errorData.message || `Server error ${res.status}`;
+    throw new Error(errorMessage);
+  }
+
+  toast({
+    title: "Success",
+    description: "Exercise was added successfuly",
+  });
+  router.push("/muscles");
+} catch (err: any) {
+  toast({
+    variant: "destructive",
+    title: "Error",
+    description: err.message || "Can't add exercise",
+  });
+}
+}
 
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
