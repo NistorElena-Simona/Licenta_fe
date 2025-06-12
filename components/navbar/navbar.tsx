@@ -19,12 +19,15 @@ import { Input } from "@nextui-org/react";
 import { SearchIcon } from "@/components/icons";
 import { FaCog } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext"; 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export const Navbar = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const toggleModal = () => setIsModalOpen((prev) => !prev);
   const { user, isLoading, isAuthenticated, logout,isAdmin } = useAuth();
   const [userAuthenticated, setUserAuthenticated] = useState(false);
@@ -35,6 +38,12 @@ export const Navbar = () => {
     }
   }, [isLoading, isAuthenticated])
 
+  // Sincronizează searchQuery cu URL-ul când se schimbă pagina
+  useEffect(() => {
+    const currentSearch = searchParams.get('search') || '';
+    setSearchQuery(currentSearch);
+  }, [searchParams, pathname]);
+
   const handleButtonClick = async () => {
     if (userAuthenticated) {
       await logout()
@@ -44,24 +53,77 @@ export const Navbar = () => {
     }
   }
 
-  // const handleOpenChange = (state) => {
-  //   toggleModal();
-  // };
-  // const searchInput = (
-  //   <Input
-  //     aria-label="Search"
-  //     classNames={{
-  //       inputWrapper: "bg-default-100",
-  //       input: "text-sm",
-  //     }}
-  //     labelPlacement="outside"
-  //     placeholder="Search..."
-  //     startContent={
-  //       <SearchIcon className="text-base text-black text-default-400 pointer-events-none flex-shrink-0" />
-  //     }
-  //     type="search"
-  //   />
-  // );
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      const query = searchQuery.trim();
+      
+      // Detectează pagina curentă și redirecționează cu query-ul de căutare
+      if (pathname.includes('/muscles')) {
+        // Căutare în pagina de mușchi
+        router.push(`/muscles?search=${encodeURIComponent(query)}`);
+      } else if (pathname.includes('/exercises')) {
+        // Căutare în pagina de exerciții
+        router.push(`/exercises?search=${encodeURIComponent(query)}`);
+      } else if (pathname.includes('/favorites')) {
+        // Căutare în pagina de favorite
+        router.push(`/favorites?search=${encodeURIComponent(query)}`);
+      } else if (pathname.includes('/challenges')) {
+        // Căutare în pagina de challenges
+        router.push(`/challenges?search=${encodeURIComponent(query)}`);
+      } else {
+        // Căutare generală - redirecționează către mușchi
+        router.push(`/muscles?search=${encodeURIComponent(query)}`);
+      }
+      
+      setSearchQuery(""); // Resetează search input
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Căutare în timp real - actualizează URL-ul pe măsură ce utilizatorul scrie
+    if (pathname.includes('/muscles')) {
+      if (value.trim()) {
+        router.push(`/muscles?search=${encodeURIComponent(value.trim())}`);
+      } else {
+        router.push('/muscles');
+      }
+    } else if (pathname.includes('/exercises')) {
+      if (value.trim()) {
+        router.push(`/exercises?search=${encodeURIComponent(value.trim())}`);
+      } else {
+        router.push('/exercises');
+      }
+    } else if (pathname.includes('/favorites')) {
+      if (value.trim()) {
+        router.push(`/favorites?search=${encodeURIComponent(value.trim())}`);
+      } else {
+        router.push('/favorites');
+      }
+    } else if (pathname.includes('/challenges')) {
+      if (value.trim()) {
+        router.push(`/challenges?search=${encodeURIComponent(value.trim())}`);
+      } else {
+        router.push('/challenges');
+      }
+    }
+  };
+
+  const getSearchPlaceholder = () => {
+    if (pathname.includes('/muscles')) {
+      return "Search muscles...";
+    } else if (pathname.includes('/exercises')) {
+      return "Search exercises...";
+    } else if (pathname.includes('/favorites')) {
+      return "Search favorites...";
+    } else if (pathname.includes('/challenges')) {
+      return "Search challenges...";
+    } else {
+      return "Search...";
+    }
+  };
 
   return (
     <NextUINavbar maxWidth="2xl" position="sticky" height="10vh">
@@ -157,8 +219,14 @@ export const Navbar = () => {
       <Input
         aria-label="Search" 
         className="bg-default-100 rounded-full"
-        placeholder="Search..."
+        placeholder={getSearchPlaceholder()}
         type="search"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        onKeyDown={handleSearch}
+        startContent={
+          <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+        }
       />
       
       <ThemeSwitch />

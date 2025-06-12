@@ -3,6 +3,7 @@ export interface User {
     email: string;
     name: string;
     roles: ("ADMIN" | "EMPLOYEE")[];
+    isPremium?: boolean;
   }
   
   export interface LoginCredentials {
