@@ -129,7 +129,7 @@ export const Navbar = () => {
     <NextUINavbar maxWidth="2xl" position="sticky" height="10vh">
     <NavbarContent justify="start">
       <NavbarBrand>
-        <Link href="/" className="font-bold text-2xl text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-300">
+        <Link href="/" className="font-bold text-2xl text-indigo-300 hover:text-indigo-400 dark:hover:text-indigo-300">
           Fitness-App
         </Link>
       </NavbarBrand>
@@ -138,7 +138,7 @@ export const Navbar = () => {
     
         {/* Link către pagina About */}
         <NavbarItem>
-          <Link href="/pages/about" className="text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300">
+          <Link href="/pages/about" className="text-indigo-300 text-2xl hover:text-indigo-400 dark:hover:text-indigo-300">
             About
           </Link>
         </NavbarItem>
@@ -188,7 +188,7 @@ export const Navbar = () => {
                   ...(isAdmin ? [{ key: "add_exercise", href: "/add_ex", label: "Add exercise" }] : [])
                 ].map(item => (
                   <DropdownItem key={item.key}>
-                    <Link href={item.href} className="text-indigo-600  dark:text-indigo-400 ">
+                    <Link href={item.href} className="text-indigo-300  dark:text-indigo-400 ">
                       {item.label}
                     </Link>
                   </DropdownItem>
@@ -210,7 +210,7 @@ export const Navbar = () => {
         </NavbarItem>
       )} */}
         <NavbarItem>
-          <Link href="/pages/pricing" className="text-indigo-600 text-2xl hover:text-indigo-800 dark:hover:text-indigo-300">
+          <Link href="/pages/pricing" className="text-indigo-300 text-2xl hover:text-indigo-400 dark:hover:text-indigo-300">
             Pricing
           </Link>
         </NavbarItem>
